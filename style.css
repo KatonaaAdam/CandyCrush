@@ -1,0 +1,115 @@
+
+@charset "UTF-8";
+
+#NameText{
+    position: absolute;
+    left: 250px;
+    width: 200px;
+    height: 50px;
+    font-size: 20px;
+    top:300px;
+    border-radius: 10px;
+    font-family: cursive;
+
+}
+#demo{
+    position: relative;
+    font-size: 33px;
+    top:0px;
+    left: 250px;
+    margin: 0px;
+    border: 0px;
+    font-family: cursive;
+
+}
+#jatekosNeve{
+    position: absolute;
+    font-size: 33px;
+    top:5px;
+    left: 40px;
+    margin: 0px;
+    border: 0px;
+    font-family: cursive;
+
+}
+
+#hatter{
+    background-image: url("candy.jpg");
+}
+#canvas{
+    margin: 20px;
+   /* border: 1px solid;*/
+}
+#start1{
+    top:400px;
+}
+start1:hover{
+    background-color: yellow;
+}
+#start2{
+    top: 500px;
+}
+#ujra{
+    top:400px;
+    display: none;
+}
+.btn{
+    position: absolute;
+    left: 250px;
+    width: 200px;
+    height: 50px;
+    font-size: 20px;
+    background-color: cornflowerblue;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-family: cursive;
+}
+.btn:hover{
+    background-color: #4CAF50; /* zöld*/
+    color: white;
+}
+
+/*********************Topp listák formázása*/
+#wrapper {
+    position: fixed;
+    width: 400px;
+    height: 515px;
+    border: 3px solid;
+    margin: 0 auto;
+    top: 50px;
+    left: 700px;
+    
+
+}
+
+#top_list {
+    position: fixed;
+    top: 53px;
+    left: 700px;
+    width: 400px;
+    height: 515px;
+    border-left: 3px solid black;
+    float: right;
+    background-color: burlywood;
+    font-family: cursive;
+
+}
+
+
+
+#list {
+    left: 0;
+    font-size: 18px;
+    position: relative;
+    text-align: center;
+    font-family: cursive;
+}
+
+

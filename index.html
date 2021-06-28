@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CandyCrush</title>
+    <script src="jquery-3.5.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <style>
+
+    </style>
+
+</head>
+<body onload="setWallPaper()">
+<div id="hatter">
+<p id="jatekosNeve">Játékos neve:</p>
+<p id="demo" ></p>
+<canvas id="canvas" width="600" height="700"></canvas>
+<input type="text" id="NameText" value="Name">
+<img id="wall" src="image\wallpaper.jpg" style="display: none;">
+<img id="red" src="image\elem\red.png" style="display: none">
+<img id="blue" src="image\elem\blue.png" style="display: none">
+<img id="orange" src="image\elem\orange.png" style="display: none">
+<img id="yellow" src="image\elem\yellow.png" style="display: none">
+<img id="purple" src="image\elem\purple.png" style="display: none">
+<img id="green" src="image\elem\green.png" style="display: none">
+<img id="discoGomb" src="image\elem\super.png" style="display: none">
+<button type="button" id="start1" class="btn" onclick="initialize()">Easy</button>
+<button type="button" id="start2" class="btn" onclick="initialize2()">Hard</button>
+<button type="button" id="ujra" class="btn" onclick="location.href='index.html'">Try again</button>
+<audio src="music/Timmy_Trumpet.mp3" id="music"></audio>
+<audio src="music/Click.wav" id="click"></audio>
+
+<script>
+    var ctx, elemek =[];
+    var moves =[];
+    var time;
+    var size;
+    var lepes=0;
+    var point=0;
+    var imageList=[red,blue,yellow,green,purple,orange,discoGomb];
+    var mDX=null;
+    var mDY=null;
+    var start =document.getElementById("start1");
+    var start2 =document.getElementById("start2");
+    var again =document.getElementById("ujra");
+    var music = document.getElementById("music");
+    var click = document.getElementById("click");
+    var nameText= document.getElementById("NameText");
+    var JatekosNeve =document.getElementById("jatekosNeve");
+    JatekosNeve.style.display="none";
+
+
+
+
+    //Canvas inicializálása
+
+    var canvas =document.getElementById("canvas");
+    ctx= canvas.getContext("2d");
+    
+    function setWallPaper() {
+        ctx.drawImage(wall,0,0);
+
+    }
+
+    function getRandomNum(e) {
+        return Math.floor(Math.random()*e);
+
+    }
+
+    function Elem(x,y) {
+        this.x1=x;
+        this.y1=y;
+        this.x2=x;
+        this.y2=y;
+        this.gapCount=0;
+
+        this.getY=function () {
+            return(this.y1+( this.y2 - this.y1) * (this.gapCount) / 25)* 60 + 100;
+        }
+
+        this.moveElem= function (x2,y2,color) {
+            this.x2=x2;
+            this.y2=y2;
+            this.color=color;
+            this.moving =true;
+            this.gapCount=25;
+            moves.push(this);
+
+        }
+        this.update=function () {
+            this.gapCount--;
+            if (this.gapCount<=0){
+               this.moving=false;
+            }
+        }
+
+    }
+    
+    
+
+    //Létrehozzuk az elemeket 10x10 es táblán
+    function initialize() {
+
+
+        var x =nameText.value;
+        document.getElementById("demo").innerHTML = x;
+        nameText.style.display="none";
+        JatekosNeve.style.display="inline";
+
+        start.style.display="none";
+        start2.style.display="none";
+
+        lepes=10;
+        point=0;
+        size=10
+
+        for (var x = 0; x < size; x++) {
+            elemek[x] = [];
+            for (var y = 0; y < size; y++) {
+                elemek[x][y] = new Elem(x, y);
+            }
+        }
+
+
+        //szinek beállítása
+        for (var x = 0; x < size; x++) {
+            for (var y = 0; y < size; y++) {
+                while (true) {
+                    var colNum = getRandomNum(4);
+                    if (checkColor(x, y, colNum)) {
+                        elemek[x][y].color = colNum;
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        //egér műveletek
+        canvas.onmousedown=myMouseDown;
+        canvas.onmouseup=myMouseUp;
+
+        time=setInterval(checkElemStatus,25);
+        music.play();
+
+        
+    }
+    //////////////////////////////MASIK PALYA ES NEHEZSEGI SZINT/////////////////////////////////////////////
+    function initialize2() {
+
+
+
+        var x =nameText.value;
+        document.getElementById("demo").innerHTML = x;
+        nameText.style.display="none";
+        JatekosNeve.style.display="inline";
+
+        start.style.display="none";
+        start2.style.display="none";
+        size=7;
+        lepes=10;
+        point=0;
+
+        for (var x = 0; x < size; x++) {
+            elemek[x] = [];
+            for (var y = 0; y < size; y++) {
+                elemek[x][y] = new Elem(x, y);
+            }
+        }
+
+
+        //szinek beállítása
+        for (var x = 0; x < size; x++) {
+            for (var y = 0; y < size; y++) {
+                while (true) {
+                    var colNum = getRandomNum(6);
+                    if (checkColor(x, y, colNum)) {
+                        elemek[x][y].color = colNum;
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        //egér műveletek
+        canvas.onmousedown=myMouseDown;
+        canvas.onmouseup=myMouseUp;
+
+        time=setInterval(checkElemStatus,25);
+        music.play();
+
+
+    }
+
+
+    function checkElemStatus() {
+        if (moves.length>0){
+            //gapCount letrehozas
+            for (var i=0; i<moves.length; i++){
+                moves[i].update();
+            }
+
+            //ha a gapCount megmarad,akkor visszamegy
+            moves=moves.filter(
+                function (elem) {
+                return elem.gapCount !=0;
+                }
+            );
+
+            if(moves.length==0){
+            setRemoveFlag();
+            fall();
+            }
+        }
+        paint();
+        //játék vége
+        if(moves.length<=0 && lepes<=0){
+            clearInterval(time);
+            time=null;
+            music.pause();
+            music.currentTime=0;
+            ctx.clearRect(0,0,600,700);
+            again.style.display='inline';
+            ctx.font="bold 30px cursive";
+            ctx.fillText("Elért pont :"+point,300,250);
+            // eltaroljuk localStorage-ben az aktualis jatekos klikkeleseinek szamat
+            localStorage.setItem(nameText.value,point);
+
+
+
+            // feltoltjuk a toplistat
+
+            fill_toplist();
+
+
+
+        }
+
+
+    }
+    function setRemoveFlag() {
+        for (var x =0; x<size;  x++){
+            var z0= elemek[x][0].color;
+            var count =1;
+            for (var y=1;y<size;y++){
+                var z1= elemek[x][y].color;
+                if(z0==z1){
+                    count++;
+                    if (count>=3){
+                        if (count>=5){
+                            console.log("5 egyforma");
+
+                        }
+                        elemek[x][y-2].remove=true;
+                        elemek[x][y-1].remove=true;
+                        elemek[x][y].remove=true;
+                    }
+
+                }else{
+                    z0=z1;
+                    count=1;
+                }
+            }
+        }
+        for (var y=0;y<size;y++){
+            var z0= elemek[0][y].color;
+            var count =1;
+            for (var x =1; x<size;  x++){
+                var z1= elemek[x][y].color;
+                if(z0==z1){
+                    count++;
+                    if (count>=3){
+                        if (count>=5){
+                            console.log("5 egyforma");
+                        }
+                        elemek[x-2][y].remove=true;
+                        elemek[x-1][y].remove=true;
+                        elemek[x][y].remove=true;}
+                }else{
+                    z0=z1;
+                    count=1;
+                }
+            }
+
+        }
+    }
+
+
+    function fall() {
+        for (var x=0; x<size;x++){
+            for (var y=size-1,z=size-1;y>=0;y--,z--){
+                while (z>=0){
+                    if(elemek[x][z].remove){
+                        z--;
+                    }else{
+                        break;
+                    }
+                }
+                if (y!=z){
+
+
+                    if (size===10){
+                        var colNum = (z >= 0) ? elemek[x][z].color : getRandomNum(4);
+                        elemek[x][y].moveElem(x, z, colNum);}else{
+                        var colNum = (z >= 0) ? elemek[x][z].color : getRandomNum(6);
+                        elemek[x][y].moveElem(x, z, colNum);
+
+                    }
+                    }
+
+            }
+        }
+
+        //remove függvény frissitése és eredmény
+        var clickFlag=true;
+        for (var x=0; x<size; x++){
+            for (var y=0; y<size; y++){
+                if (elemek[x][y].remove){
+                    elemek[x][y].remove=false;
+                    point+=100;
+                    //hápogás beállítása
+                    if(clickFlag){
+                        click.pause();
+                        click.currentTime=0;
+                        click.play();
+                        clickFlag=false;
+                    }
+                }
+            }
+        }
+
+    }
+    
+    
+    function checkColor(x,y,z) {
+        var f=true;
+        if (x>1){
+            var z0= elemek[x-2][y].color;//három közül a szélső ami egyforma
+            var z1= elemek[x-1][y].color;//középső
+            if(z0==z1 && z1==z){
+                f=false;
+            }
+         }
+        if(y>1){
+            var z0= elemek[x][y-2].color;//három közül a felső ami egyforma
+            var z1= elemek[x][y-1].color;//középső
+            if(z0==z1 && z1==z){
+                f=false;
+            }
+        }
+        return f;
+
+    }
+
+    function paint() {
+        //canvas tisztitása
+        ctx.clearRect(0,0,600,700);
+
+    for (var x=0;x<size;x++){
+        for (var y=0;y<size;y++){
+            //kirajzoljuk  10x10es pályát(kép,x-koordinata,y-koordináta,széles, magas)
+            //10 db 60 as kep jobbra =600 és 10 darab 60 kép lefelé +100 még az eredményeknek =700 --> 600x700
+            ctx.drawImage(imageList[elemek[x][y].color],x * 60,elemek[x][y].getY(),60, 60);
+        }
+    }
+
+    ctx.font='bold 20px cursive';
+    ctx.textAlign='center';
+    ctx.fillText('Hátralévő lépések :'+lepes,150,50)
+    ctx.fillText('Eredmény :'+point,450,50)
+}
+
+    function myMouseDown(e) {
+        mDX =e.offsetX;
+        mDY =e.offsetY;
+    }
+    function myMouseUp(e) {
+        var elemX1 = Math.floor(mDX/60);
+        var elemY1 = Math.floor((mDY-100)/60);
+
+        var elemX2=elemX1;
+        var elemY2=elemY1
+        var mouseUpX =e.offsetX;
+        var mouseUpY =e.offsetY;
+
+        //halycsere megírása
+        if (Math.abs(mouseUpX-mDX) ==0 && Math.abs(mouseUpY-mDY)==0){
+            return;
+        } else if(Math.abs(mouseUpX-mDX) > Math.abs(mouseUpY-mDY)){
+            elemX2+=(mouseUpX-mDX>0) ? 1 : -1;
+        }else{
+            elemY2+=(mouseUpY-mDY>0) ? 1: -1;
+        }
+
+        if (elemek[elemX1][elemY1].moving || elemek[elemX2][elemY2].moving || time==null){
+            return;
+        }
+
+        //switch az elemek szinére
+        var ElemCollor=elemek[elemX1][elemY1].color;
+        elemek[elemX1][elemY1].moveElem(elemX2,elemY2,elemek[elemX2][elemY2].color)
+        elemek[elemX2][elemY2].moveElem(elemX1,elemY1,ElemCollor);
+
+        //lépés csökkentés minden huzá után
+        lepes--;
+
+        paint();
+
+    }
+
+    var top = document.getElementById("top_list");
+</script>
+    <script src="easy_top.js"></script>
+<div id="wrapper">
+    <div id="top_list">
+        <h2 style="text-align: center; padding-bottom: 5px">Easy TOP 10</h2>
+        <p id="list"></p>
+    </div>
+
+
+</div>
+</div>
+</body>
+</html>
